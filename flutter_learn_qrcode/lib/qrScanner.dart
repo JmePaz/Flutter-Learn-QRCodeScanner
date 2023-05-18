@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:flutter/material.dart';
+import 'response.dart';
 
 class QRScanner extends StatefulWidget {
   const QRScanner({super.key});
@@ -35,7 +36,7 @@ class _QRScannerState extends State<QRScanner> {
       body: Column(
         children: <Widget>[
           Expanded(
-            flex: 5,
+            flex: 9,
             child: QRView(
               key: qrKey,
               onQRViewCreated: _onQRViewCreated,
@@ -43,12 +44,14 @@ class _QRScannerState extends State<QRScanner> {
           ),
           Expanded(
             flex: 1,
-            child: Center(
-              child: (result != null)
-                  ? Text(
-                      'Barcode Type: ${describeEnum(result!.format)}   Data: ${result!.code}')
-                  : Text('Scan a code'),
-            ),
+            child: Container(
+                color: Color.fromARGB(255, 5, 57, 146),
+                child: Center(
+                  child: Text(
+                    'Scan a QR Code',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                )),
           )
         ],
       ),
@@ -58,9 +61,15 @@ class _QRScannerState extends State<QRScanner> {
   void _onQRViewCreated(QRViewController controller) {
     this.controller = controller;
     controller.scannedDataStream.listen((scanData) {
-      setState(() {
+      if (result != null) return;
+
+      if (scanData.code != null) {
         result = scanData;
-      });
+        Navigator.of(context)
+            .push(MaterialPageRoute(
+                builder: (context) => ResponseQR(response: result!.code!)))
+            .then((value) => {result = null});
+      }
     });
   }
 
